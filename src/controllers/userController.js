@@ -56,8 +56,13 @@ class UserController {
 
     try {
       var decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY);
-      if (decoded.uid != userId) {
+      if (decoded.uid != userId && decoded.role_id != 1) {
         return res.status(404).json({ error: 'You are not allowed to update other users' });
+      }
+
+      const emailIsTaken = await userModel.isEmailTakenByOtherUser(userId, email);
+      if (emailIsTaken) {
+        return res.status(404).json({ error: 'Email is taken by other user' });
       }
 
       const updatedUser = await userModel.updateUser(userId, name, email);
@@ -78,7 +83,7 @@ class UserController {
 
     try {
       var decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY);
-      if (decoded.uid != userId) {
+      if (decoded.role_id != 1 && decoded.uid != userId) {
         return res.status(404).json({ error: 'You are not allowed to delete other users' });
       }
 

@@ -30,12 +30,23 @@ class UserModel {
     return rows[0];
   }
 
+  async isEmailTakenByOtherUser(id, email) {
+    const query = `
+      SELECT *
+      FROM users
+      WHERE email = ?
+      AND id != ?
+    `;
+    const [rows] = await db.query(query, [email, id]);
+    return rows.length > 0;
+  }
+
   async createUser(name, email, hash) {
     const query = `
-      INSERT INTO users (name, email, password)
-      VALUES (?, ?, ?)
+      INSERT INTO users (name, email, password, role_id)
+      VALUES (?, ?, ?, ?)
     `;
-    const [result] = await db.query(query, [name, email, hash, 1]);
+    const [result] = await db.query(query, [name, email, hash, 2]);
     const insertedId = result.insertId;
     const newUser = await this.getUserById(insertedId);
     return newUser;
@@ -52,6 +63,14 @@ class UserModel {
     }
     const updatedUser = await this.getUserById(userId);
     return updatedUser;
+  }
+
+  async newPassword(userId, newPasswordHash) {
+    const query = `
+      UPDATE users
+      SET password = ? WHERE id = ?
+    `;
+    await db.query(query, [newPasswordHash, userId]);
   }
 
   async deleteUser(userId) {

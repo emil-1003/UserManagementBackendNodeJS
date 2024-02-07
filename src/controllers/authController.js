@@ -17,15 +17,39 @@ class UserController {
         let jwtSecretKey = process.env.JWT_SECRET_KEY;
         let data = {
             email: user.email,
-            uid: user.id
+            uid: user.id,
+            role_id: user.role_id
         }
     
         const token = jwt.sign(data, jwtSecretKey, {expiresIn: '15min'});
       
-        return res.send(token);
+        return res.json({
+          token: token
+        });
       }
 
       return res.status(404).json({ error: 'Wrong password' });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async newPassword(req, res) {
+    const { new_password } = req.body;
+    const token = req.header("Authorization");
+
+    try {
+      var decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY);
+
+      const newPasswordHash = bcrypt.hashSync(new_password, 10);
+
+      console.log(newPasswordHash)
+
+      await userModel.newPassword(decoded.uid, newPasswordHash);
+
+      return res.json({
+        message: "Successfull"
+      });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }

@@ -14,9 +14,9 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false })); // create application/x-www-form-urlencoded parser
 app.use(bodyParser.json());
 
-app.use('/users', userRoutes);
+app.use('/api/v1/users', userRoutes);
 
-app.use('/auth', authRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
