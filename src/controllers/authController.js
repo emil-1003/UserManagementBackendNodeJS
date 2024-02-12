@@ -43,8 +43,6 @@ class UserController {
 
       const newPasswordHash = bcrypt.hashSync(new_password, 10);
 
-      console.log(newPasswordHash)
-
       await userModel.newPassword(decoded.uid, newPasswordHash);
 
       return res.json({

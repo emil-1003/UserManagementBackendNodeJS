@@ -1,0 +1,37 @@
+
+version: '3'
+ 
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Lime4321
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: Lime4321
+    ports:
+      - 8080:80
+  
+  usermanagement:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: usermanagement
+    container_name: usermanagement
+    ports:
+      - 8585:8585
+    restart: always
+volumes:
+  mysqldata:
