@@ -1,21 +1,8 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
-const { config } = require('../utils/config')
+const auth = require('../utils/auth');
 
 class UserController {
-  // Samme method er i authMiddleWare - lav EN function i utils til det TODO:
-  DEFAULT_ROLE_ID = 2
-  ADMIN_ROLE_ID = 1
-
-  verifyToken(token) {
-    try {
-      return jwt.verify(token.split(" ")[1], config.JWT_SECRET_KEY);
-    } catch (error) {
-      return null;
-    }
-  }
-
   async getAll(req, res) {
     try {
       const users = await userModel.getAllUsers();
@@ -68,25 +55,25 @@ class UserController {
     const token = req.header("Authorization");
 
     try {
-      const decoded = this.verifyToken(token);
-      if (!decoded || (decoded.uid !== userId && decoded.role_id !== this.ADMIN_ROLE_ID)) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({ error: 'You are not allowed to update other users' });
+      const decoded = auth.verifyToken(token);
+      if (!decoded || (decoded.uid != userId && decoded.role_id !== auth.ADMIN_ROLE_ID)) {
+        return res.status(403).json({ error: 'You are not allowed to update other users' });
       }
 
       const emailIsTaken = await userModel.isEmailTakenByOtherUser(userId, email);
       if (emailIsTaken) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Email is taken by other user' });
+        return res.status(400).json({ error: 'Email is taken by other user' });
       }
 
       const updatedUser = await userModel.updateUser(userId, name, email);
       if (!updatedUser) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'User not found' });
+        return res.status(404).json({ error: 'User not found' });
       }
 
       delete updatedUser.password;
       res.json(updatedUser);
     } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -95,20 +82,20 @@ class UserController {
     const token = req.header("Authorization");
 
     try {
-      const decoded = this.verifyToken(token);
-      if (!decoded || (decoded.role_id !== 1 && decoded.uid !== userId)) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({ error: 'You are not allowed to delete other users' });
+      const decoded = auth.verifyToken(token);
+      if (!decoded || (decoded.role_id !== auth.DEFAULT_ROLE_ID && decoded.uid !== userId)) {
+        return res.status(403).json({ error: 'You are not allowed to delete other users' });
       }
 
       const deletedUser = await userModel.deleteUser(userId);
       if (!deletedUser) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'User not found' });
+        return res.status(404).json({ error: 'User not found' });
       }
 
       delete deletedUser.password;
       res.json({ message: 'User deleted successfully' });
     } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 }
