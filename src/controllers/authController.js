@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const { config } = require('../utils/config')
 
 class UserController {
   async login(req, res) {
@@ -14,7 +15,7 @@ class UserController {
       }
       
       if (bcrypt.compareSync(password, user.password)) {
-        let jwtSecretKey = process.env.JWT_SECRET_KEY;
+        let jwtSecretKey = config.JWT_SECRET_KEY;
         let data = {
             email: user.email,
             uid: user.id,
@@ -39,7 +40,7 @@ class UserController {
     const token = req.header("Authorization");
 
     try {
-      var decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY);
+      var decoded = jwt.verify(token.split(" ")[1], config.JWT_SECRET_KEY);
 
       const newPasswordHash = bcrypt.hashSync(new_password, 10);
 

@@ -1,87 +1,128 @@
-const db = require('../config/dbConfig');
+const db = require('../utils/db');
 
+const DEFAULT_ROLE_ID = 2
 class UserModel {
   async getAllUsers() {
-    const query = `
-      SELECT *
-      FROM users
-    `;
-    const [rows] = await db.query(query);
-    return rows;
+    try {
+      const query = `
+        SELECT *
+        FROM users
+      `;
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error('Error in getAllUsers:', error);
+      throw error;
+    }
   }
 
   async getUserById(userId) {
-    const query = `
-      SELECT *
-      FROM users
-      WHERE id = ?;
-    `;
-    const [rows] = await db.query(query, [userId]);
-    return rows[0];
+    try {
+      const query = `
+        SELECT *
+        FROM users
+        WHERE id = ?;
+      `;
+      const [rows] = await db.query(query, [userId]);
+      return rows[0];
+    } catch (error) {
+      console.error('Error in getUserById:', error);
+      throw error;
+    }
   }
 
   async getUserByEmail(email) {
-    const query = `
-      SELECT *
-      FROM users
-      WHERE email = ?
-    `;
-    const [rows] = await db.query(query, [email]);
-    return rows[0];
+    try {
+      const query = `
+        SELECT *
+        FROM users
+        WHERE email = ?
+      `;
+      const [rows] = await db.query(query, [email]);
+      return rows[0];
+    } catch (error) {
+      console.error('Error in getUserByEmail:', error);
+      throw error;
+    }
   }
 
   async isEmailTakenByOtherUser(id, email) {
-    const query = `
-      SELECT *
-      FROM users
-      WHERE email = ?
-      AND id != ?
-    `;
-    const [rows] = await db.query(query, [email, id]);
-    return rows.length > 0;
+    try {
+      const query = `
+        SELECT *
+        FROM users
+        WHERE email = ?
+        AND id != ?
+      `;
+      const [rows] = await db.query(query, [email, id]);
+      return rows.length > 0;
+    } catch (error) {
+      console.error('Error in isEmailTakenByOtherUser:', error);
+      throw error;
+    }
   }
 
   async createUser(name, email, hash) {
-    const query = `
-      INSERT INTO users (name, email, password, role_id)
-      VALUES (?, ?, ?, ?)
-    `;
-    const [result] = await db.query(query, [name, email, hash, 2]);
-    const insertedId = result.insertId;
-    const newUser = await this.getUserById(insertedId);
-    return newUser;
+    try {
+      const query = `
+        INSERT INTO users (name, email, password, role_id)
+        VALUES (?, ?, ?, ?)
+      `;
+      const [result] = await db.query(query, [name, email, hash, DEFAULT_ROLE_ID]);
+      const insertedId = result.insertId;
+      const newUser = await this.getUserById(insertedId);
+      return newUser;
+    } catch (error) {
+      console.error('Error in createUser:', error);
+      throw error;
+    }
   }
 
   async updateUser(userId, name, email) {
-    const query = `
-      UPDATE users
-      SET name = ?, email = ? WHERE id = ?
-    `;
-    const [result] = await db.query(query, [name, email, userId]);
-    if (result.affectedRows === 0) {
-      return null;
+    try {
+      const query = `
+        UPDATE users
+        SET name = ?, email = ? WHERE id = ?
+      `;
+      const [result] = await db.query(query, [name, email, userId]);
+      if (result.affectedRows === 0) {
+        return null;
+      }
+      const updatedUser = await this.getUserById(userId);
+      return updatedUser;
+    } catch (error) {
+      console.error('Error in updateUser:', error);
+      throw error;
     }
-    const updatedUser = await this.getUserById(userId);
-    return updatedUser;
   }
 
   async newPassword(userId, newPasswordHash) {
-    const query = `
-      UPDATE users
-      SET password = ? WHERE id = ?
-    `;
-    await db.query(query, [newPasswordHash, userId]);
+    try {
+      const query = `
+        UPDATE users
+        SET password = ? WHERE id = ?
+      `;
+      await db.query(query, [newPasswordHash, userId]);
+    } catch (error) {
+      console.error('Error in newPassword:', error);
+      throw error;
+    }
   }
 
   async deleteUser(userId) {
-    const query = `
-      DELETE FROM users WHERE id = ?
-    `;
-    const [result] = await db.query(query, [userId]);
-    if (result.affectedRows === 0) {
-      return null;
+    try {
+      const query = `
+        DELETE FROM users WHERE id = ?
+      `;
+      const [result] = await db.query(query, [userId]);
+      if (result.affectedRows === 0) {
+        return null;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error in deleteUser:', error);
+      throw error;
     }
-    return true;
   }
 }
 
