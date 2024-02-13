@@ -1,6 +1,6 @@
 const db = require('../utils/db');
+const auth = require('../utils/auth');
 
-const DEFAULT_ROLE_ID = 2
 class UserModel {
   async getAllUsers() {
     try {
@@ -68,7 +68,7 @@ class UserModel {
         INSERT INTO users (name, email, password, role_id)
         VALUES (?, ?, ?, ?)
       `;
-      const [result] = await db.query(query, [name, email, hash, DEFAULT_ROLE_ID]);
+      const [result] = await db.query(query, [name, email, hash, auth.DEFAULT_ROLE_ID]);
       const insertedId = result.insertId;
       const newUser = await this.getUserById(insertedId);
       return newUser;
