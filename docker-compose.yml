@@ -22,14 +22,14 @@ services:
     ports:
       - 8080:80
   
-  usermanagement:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: usermanagement
-    container_name: usermanagement
-    ports:
-      - 8585:8585
-    restart: always
+  # usermanagement:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   image: usermanagement
+  #   container_name: usermanagement
+  #   ports:
+  #     - 8585:8585
+  #   restart: always
 volumes:
   mysqldata:
