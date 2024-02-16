@@ -83,7 +83,8 @@ class UserController {
 
     try {
       const decoded = auth.verifyToken(token);
-      if (!decoded || (decoded.role_id !== auth.DEFAULT_ROLE_ID && decoded.uid !== userId)) {
+
+      if (!decoded || (decoded.role_id == auth.DEFAULT_ROLE_ID && decoded.uid != userId)) {
         return res.status(403).json({ error: 'You are not allowed to delete other users' });
       }
 

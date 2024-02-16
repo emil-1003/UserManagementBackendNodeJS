@@ -37,15 +37,19 @@ class UserController {
   }
 
   async newPassword(req, res) {
-    const { new_password } = req.body;
+    const userId = req.params.id;
+    const { newpassword } = req.body;
     const token = req.header("Authorization");
 
     try {
       var decoded = auth.verifyToken(token)
+      if (!decoded || (decoded.uid != userId && decoded.role_id !== auth.ADMIN_ROLE_ID)) {
+        return res.status(403).json({ error: 'You are not allowed to update other users' });
+      }
 
-      const newPasswordHash = bcrypt.hashSync(new_password, 10);
+      const newPasswordHash = bcrypt.hashSync(newpassword, 10);
 
-      await userModel.newPassword(decoded.uid, newPasswordHash);
+      await userModel.newPassword(userId/*decoded.uid*/, newPasswordHash);
 
       return res.json({
         message: "Successfull"
