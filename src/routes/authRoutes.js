@@ -8,6 +8,6 @@ const router = express.Router();
 router.post('/login', authController.login);
 
 // PUT new password
-router.put('/new/password', authMiddleware.userAuth, authController.newPassword);
+router.put('/new/password/:id', authMiddleware.userAuth, authController.newPassword);
 
 module.exports = router;

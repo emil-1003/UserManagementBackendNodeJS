@@ -1,4 +1,3 @@
-
 version: '3'
  
 services:
@@ -21,6 +20,25 @@ services:
       MYSQL_ROOT_PASSWORD: Lime4321
     ports:
       - 8080:80
+<<<<<<< HEAD
+=======
+  
+  # Add usermanagement service
+  usermanagement:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+    volumes:
+      - ./src:/usr/src/app/src
+    environment:
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=Lime4321
+      - DATABASE_NAME=your_database_name
+>>>>>>> ae4af13ba193427b65d9029d13acc687f51fdae7
 
 volumes:
   mysqldata:

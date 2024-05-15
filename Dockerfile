@@ -12,11 +12,14 @@ RUN npm install
 # If you are building your code for production
 # RUN npm ci --omit=dev
 
+# Copy the .env file to the working directory
+COPY .env .env
+
 # Bundle app source
-COPY ./src .
+COPY /src ./src/
 
 # Expose the desired port (if needed)
-EXPOSE 8080
+EXPOSE 8585
 
 # Define the command to run your Node.js application
-CMD [ "node", "app.js" ]
+CMD [ "node", "src/app.js" ]
